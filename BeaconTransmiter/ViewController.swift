@@ -22,6 +22,7 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate {
     var beaconPeripheralData: NSDictionary!
     var peripheralManager: CBPeripheralManager!
     var isBroadcasting = false
+    var beaconTimer: NSTimer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,6 +73,17 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate {
         self.identity.text = "MySmartDoor"
     }
     
+    func runThroughCycle(minorNum : Int) {
+        stopLocalBeacon()
+        initLocalBeacon(minorNum)
+        isBroadcasting = true
+        updateInterface(minorNum)
+    }
+    
+    func resetBeacon(){
+        runThroughCycle(1)
+    }
+    
     @IBAction func transmitBeacon(sender: AnyObject) {
         if !isBroadcasting {
             initLocalBeacon(1)
@@ -88,20 +100,17 @@ class ViewController: UIViewController, CBPeripheralManagerDelegate {
         stopLocalBeacon()
         isBroadcasting = false
         updateInterface(5)
+        
     }
     
     @IBAction func unlockDoor(sender: AnyObject) {
-        stopLocalBeacon()
-        initLocalBeacon(2)
-        isBroadcasting = true
-        updateInterface(2)
+        runThroughCycle(2)
+        beaconTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(ViewController.resetBeacon), userInfo: nil, repeats: false)
     }
 
     @IBAction func lockDoor(sender: AnyObject) {
-        stopLocalBeacon()
-        initLocalBeacon(3)
-        isBroadcasting = true
-        updateInterface(3)
+        runThroughCycle(3)
+        beaconTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(ViewController.resetBeacon), userInfo: nil, repeats: false)
     }
 }
 
